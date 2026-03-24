@@ -21,6 +21,7 @@
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from pathlib import Path
 
@@ -82,16 +83,16 @@ def init_db():
     """)
 
     # -------------------------------------------------------
-    # V-03: Contraseñas almacenadas en TEXTO PLANO.
-    # Nunca deben almacenarse así en una aplicación real.
-    # Deben usarse bcrypt, Argon2 o PBKDF2.
+    # V-03 CORREGIDO: Contraseñas almacenadas con hash
+    # PBKDF2-SHA256 usando werkzeug.security.
+    # Nunca se guarda el texto plano en la base de datos.
     # -------------------------------------------------------
     cur.execute("SELECT COUNT(*) FROM users")
     if cur.fetchone()[0] == 0:
         users = [
-            ("admin",   "Admin123",   "admin"),
-            ("analyst", "Analyst123", "user"),
-            ("student", "Student123", "user"),
+            ("admin",   generate_password_hash("Admin123"),   "admin"),
+            ("analyst", generate_password_hash("Analyst123"), "user"),
+            ("student", generate_password_hash("Student123"), "user"),
         ]
         cur.executemany(
             "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
@@ -166,7 +167,9 @@ def login():
             return render_template("login.html")
         conn.close()
 
-        if user:
+        # V-03 CORREGIDO: Se usa check_password_hash para comparar
+        # el password ingresado contra el hash almacenado.
+        if user and check_password_hash(user["password"], password):
             session["user_id"]  = user["id"]
             session["username"] = user["username"]
             session["role"]     = user["role"]
@@ -238,12 +241,12 @@ def admin():
         return redirect(url_for("dashboard"))
 
     conn  = get_connection()
+    # V-03 CORREGIDO: La columna password ahora contiene hashes,
+    # no contraseñas en texto plano.
     users = conn.execute("SELECT id, username, password, role FROM users ORDER BY id").fetchall()
     logs  = conn.execute("SELECT * FROM audit_log ORDER BY id DESC LIMIT 20").fetchall()
     conn.close()
 
-    # Nota: se incluye la columna password (texto plano) para que
-    # los estudiantes vean claramente la V-03 desde el panel admin.
     return render_template("admin.html", users=users, logs=logs)
 
 

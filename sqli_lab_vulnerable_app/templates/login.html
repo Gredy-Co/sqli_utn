@@ -17,6 +17,12 @@
   <div class="card">
     <h2>Iniciar sesión</h2>
     <form method="post" autocomplete="off">
+      <!--
+        V-08 CORREGIDO: Token CSRF incluido en el formulario de login.
+        Previene que sitios externos envíen solicitudes de login
+        en nombre del usuario sin su consentimiento.
+      -->
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="form-group">
         <label for="username">Usuario</label>
         <input type="text" id="username" name="username" placeholder="Ingrese su usuario" required>

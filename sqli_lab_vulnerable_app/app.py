@@ -21,6 +21,7 @@
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os
@@ -38,6 +39,11 @@ app = Flask(__name__)
 # ---------------------------------------------------------------
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "fallback-dev-key-cambiar-en-produccion")
 
+# ---------------------------------------------------------------
+# V-08 CORREGIDO: Protección CSRF habilitada globalmente.
+# Todos los formularios POST requieren ahora un token válido.
+# ---------------------------------------------------------------
+csrf = CSRFProtect(app)
 
 # ---------------------------------------------------------------
 # Conexión a la base de datos

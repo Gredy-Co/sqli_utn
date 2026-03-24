@@ -7,6 +7,12 @@
 
 <div class="card">
   <form method="post">
+    <!--
+      V-08 CORREGIDO: Token CSRF incluido en el formulario.
+      Flask-WTF valida este token en cada POST para prevenir
+      ataques de falsificación de solicitudes entre sitios.
+    -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="form-group">
       <label for="term">Término de búsqueda</label>
       <input type="text" id="term" name="term" placeholder="Buscar por título, autor o categoría...">

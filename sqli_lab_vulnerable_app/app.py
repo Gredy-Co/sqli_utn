@@ -148,32 +148,22 @@ def login():
         password = request.form.get("password", "")
 
         # ---------------------------------------------------
-        # V-01: SQL INJECTION EN LOGIN
-        # La consulta se construye concatenando directamente
-        # el input del usuario sin ningún tipo de validación.
-        #
-        # Payload de ejemplo que omite la contraseña:
-        #   usuario:  admin' --
-        #   password: (cualquier cosa)
-        #
-        # Payload que accede sin conocer ningún usuario:
-        #   usuario:  ' OR '1'='1' --
-        #   password: (cualquier cosa)
+        # V-01 CORREGIDO: Consulta parametrizada con placeholder ?.
+        # El input del usuario NUNCA se concatena directamente
+        # en el texto de la consulta SQL. SQLite maneja el
+        # escapado de forma segura de manera interna.
         # ---------------------------------------------------
-        # V-01: Consulta vulnerable en UNA SOLA LÍNEA para que el comentario
-        # SQL (--) funcione correctamente en SQLite y el payload surta efecto.
-        # Payload de ejemplo: usuario = admin' --  / password = (cualquier cosa)
-        query = f"SELECT id, username, role FROM users WHERE username = '{username}' AND password = '{password}'"
-
         conn = get_connection()
         try:
-            user = conn.execute(query).fetchone()
+            user = conn.execute(
+                "SELECT id, username, password, role FROM users WHERE username = ?",
+                (username,)
+            ).fetchone()
         except Exception as e:
-            # El error de SQLite se muestra directamente — también
-            # es información sensible que no debe exponerse.
-            flash(f"Error en la base de datos: {e}", "error")
+            # El error interno NO se expone al usuario final.
+            flash("Error al procesar la solicitud. Intente nuevamente.", "error")
             conn.close()
-            return render_template("login.html", last_query=query)
+            return render_template("login.html")
         conn.close()
 
         if user:
@@ -184,7 +174,7 @@ def login():
             flash("Inicio de sesión exitoso.", "success")
             return redirect(url_for("dashboard"))
 
-        log_event("LOGIN_FAIL", username, f"query={query}")
+        log_event("LOGIN_FAIL", username)
         flash("Credenciales incorrectas.", "error")
 
     return render_template("login.html")

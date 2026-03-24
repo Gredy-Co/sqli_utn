@@ -7,3 +7,4 @@ services:
       - ./db:/app/db
     environment:
       - FLASK_ENV=development
+      - SECRET_KEY=ISW1013-UTN-sqli-lab-clave-segura-2026

@@ -23,6 +23,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -259,12 +260,11 @@ def logout():
 
 
 # ---------------------------------------------------------------
-# V-05: debug=True activo.
-# En modo debug, Flask activa un debugger interactivo en el
-# navegador cuando ocurre un error. Cualquier visitante puede
-# ejecutar código Python arbitrario en el servidor.
-# Nunca debe usarse debug=True en producción.
+# V-05 CORREGIDO: debug controlado por variable de entorno.
+# Por defecto es False. Solo se activa si FLASK_DEBUG=true
+# está explícitamente definido en el entorno.
 # ---------------------------------------------------------------
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)

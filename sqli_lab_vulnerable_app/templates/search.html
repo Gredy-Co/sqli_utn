@@ -15,18 +15,11 @@
   </form>
 </div>
 
-{% if raw_query %}
 <!--
-  V-06: La consulta SQL ejecutada se muestra en pantalla.
-  Esto expone la estructura interna de la base de datos
-  y facilita enormemente la construcción de ataques.
-  Nunca debe mostrarse información interna del servidor al usuario.
+  V-06 CORREGIDO: El bloque que mostraba la consulta SQL cruda
+  ha sido eliminado completamente. La estructura interna de la
+  base de datos nunca debe ser visible para el usuario final.
 -->
-<div class="card vuln-card">
-  <h3>⚠️ Consulta SQL ejecutada (esto no debería mostrarse)</h3>
-  <pre class="code-block">{{ raw_query }}</pre>
-</div>
-{% endif %}
 
 {% if books %}
 <div class="card">
@@ -46,10 +39,6 @@
       {% endfor %}
     </tbody>
   </table>
-</div>
-{% elif raw_query %}
-<div class="card">
-  <p>No se encontraron resultados.</p>
 </div>
 {% endif %}
 

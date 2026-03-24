@@ -225,9 +225,9 @@ def search():
             flash("Error al procesar la búsqueda. Intente nuevamente.", "error")
         conn.close()
 
-    # V-06: La consulta SQL cruda se pasa al template y se
-    # muestra en pantalla — expone la estructura interna de la BD.
-    return render_template("search.html", books=books, raw_query=raw_query)
+    # V-06 CORREGIDO: raw_query ya NO se pasa al template.
+    # La consulta interna nunca debe ser visible al usuario.
+    return render_template("search.html", books=books)
 
 
 @app.route("/admin")

@@ -8,10 +8,9 @@
 <body>
 
   <!--
-    V-07: El enlace "Admin" aparece en la navegación para TODOS los
-    usuarios autenticados, independientemente de su rol. Un usuario
-    con rol "user" verá el enlace aunque el backend lo bloquee.
-    La interfaz no debe exponer opciones que el usuario no puede usar.
+    V-07 CORREGIDO: El enlace "Admin" ahora solo se muestra en la
+    navegación cuando el usuario autenticado tiene el rol "admin".
+    Los usuarios con rol "user" no ven la opción en el menú.
   -->
   <nav class="navbar">
     <span class="nav-brand">🔐 Security Lab</span>
@@ -19,7 +18,9 @@
       <div class="nav-links">
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
         <a href="{{ url_for('search') }}">Búsqueda</a>
-        <a href="{{ url_for('admin') }}">Admin</a>
+        {% if session.get('role') == 'admin' %}
+          <a href="{{ url_for('admin') }}">Admin</a>
+        {% endif %}
         <span class="nav-user">{{ session.get('username') }} ({{ session.get('role') }})</span>
         <a href="{{ url_for('logout') }}" class="btn-logout">Salir</a>
       </div>
